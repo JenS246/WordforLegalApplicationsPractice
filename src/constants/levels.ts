@@ -2,16 +2,16 @@ import type { Level } from '../types/index';
 
 // Level 1: The Improper Brief - Document with Comic Sans that needs formatting fixes
 const level1Document = `
-<p style="text-align: center; font-family: Comic Sans MS; font-size: 18pt;"><strong>CASE BRIEF</strong></p>
-<p style="text-align: center; font-family: Comic Sans MS; font-size: 14pt;"><em>Johnson v. Metropolitan Transit Authority</em></p>
-<p style="font-family: Comic Sans MS; font-size: 14pt;"><strong>Statement of Facts</strong></p>
-<p style="font-family: Comic Sans MS; font-size: 12pt;">On March 15, 2024, the plaintiff, Sarah Johnson, was a passenger on a Metropolitan Transit Authority bus traveling southbound on Main Street. At approximately 3:45 PM, the bus driver, employed by the defendant, failed to observe a red traffic signal at the intersection of Main Street and Oak Avenue.</p>
-<p style="font-family: Comic Sans MS; font-size: 12pt;">As a result of the driver's negligence, the bus collided with a passenger vehicle lawfully proceeding through the intersection. The plaintiff sustained significant injuries including a fractured clavicle, multiple contusions, and cervical strain requiring ongoing physical therapy.</p>
-<p style="font-family: Comic Sans MS; font-size: 14pt;"><strong>Legal Issues</strong></p>
-<p style="font-family: Comic Sans MS; font-size: 12pt;">1. Whether the defendant's employee was acting within the scope of employment at the time of the incident.</p>
-<p style="font-family: Comic Sans MS; font-size: 12pt;">2. Whether the doctrine of respondeat superior applies to hold the defendant vicariously liable for the employee's negligence.</p>
-<p style="font-family: Comic Sans MS; font-size: 14pt;"><strong>Applicable Law</strong></p>
-<p style="font-family: Comic Sans MS; font-size: 12pt;">Under established principles of agency law, an employer may be held vicariously liable for the tortious acts of an employee committed within the scope of employment. See Restatement (Third) of Agency § 2.04.</p>
+<p style="font-family: Comic Sans MS; text-align: center;">CASE BRIEF</p>
+<p style="font-family: Comic Sans MS; text-align: center;">Johnson v. Metropolitan Transit Authority</p>
+<p style="font-family: Comic Sans MS;">Statement of Facts</p>
+<p style="font-family: Comic Sans MS; font-size: 11pt;">On March 15, 2024, the plaintiff, Sarah Johnson, was a passenger on a Metropolitan Transit Authority bus traveling southbound on Main Street. At approximately 3:45 PM, the bus driver, employed by the defendant, failed to observe a red traffic signal at the intersection of Main Street and Oak Avenue.</p>
+<p style="font-family: Comic Sans MS; font-size: 11pt;">As a result of the driver's negligence, the bus collided with a passenger vehicle lawfully proceeding through the intersection. The plaintiff sustained significant injuries including a fractured clavicle, multiple contusions, and cervical strain requiring ongoing physical therapy.</p>
+<p style="font-family: Comic Sans MS;">Legal Issues</p>
+<p style="font-family: Comic Sans MS; font-size: 11pt;">1. Whether the defendant's employee was acting within the scope of employment at the time of the incident.</p>
+<p style="font-family: Comic Sans MS; font-size: 11pt;">2. Whether the doctrine of respondeat superior applies to hold the defendant vicariously liable for the employee's negligence.</p>
+<p style="font-family: Comic Sans MS;">Applicable Law</p>
+<p style="font-family: Comic Sans MS; font-size: 11pt;">Under established principles of agency law, an employer may be held vicariously liable for the tortious acts of an employee committed within the scope of employment. See Restatement (Third) of Agency, Section 2.04.</p>
 `;
 
 // Level 2: Citation Nightmare - Document with citations that need to be marked
@@ -72,24 +72,24 @@ export const levels: Level[] = [
     subtitle: 'Table of Authorities Generation',
     difficulty: 'associate',
     description: 'The legal memorandum contains multiple case citations that need to be properly marked and compiled into a Table of Authorities.',
-    objective: 'Identify and mark all legal citations, then generate a proper Table of Authorities.',
+    objective: 'Identify and mark all legal citations, then generate a proper Table of Authorities at the top of the document.',
     skills: ['Citation Recognition', 'TOA Generation', 'Legal Research'],
     tasks: [
       { id: 't2-1', description: 'Mark citation: Anderson v. Liberty Lobby, Inc.', hint: 'Select the citation text and use Mark Citation in References tab' },
       { id: 't2-2', description: 'Mark citation: Celotex Corp. v. Catrett', hint: 'Highlight the full case name with citation' },
       { id: 't2-3', description: 'Mark citation: Palsgraf v. Long Island Railroad Co.', hint: 'Classic torts case on proximate cause' },
       { id: 't2-4', description: 'Mark all remaining citations', hint: "Don't forget Rowland, Li, and Knight cases" },
-      { id: 't2-5', description: 'Insert Table of Authorities before Argument', hint: 'Position cursor before III. ARGUMENT and click Insert TOA in References tab' },
+      { id: 't2-5', description: 'Insert the Table of Authorities at the very top of the document', hint: 'Click Insert TOA to enter placement mode, hover to pick the top slot (just under the title), and click to place it. Use Exit Placement if you need to cancel.' },
     ],
     initialDocument: level2Document,
   },
   {
     id: 3,
     title: 'Redline Review',
-    subtitle: 'Track Changes Review',
+    subtitle: 'Track Changes Review (Tenant perspective)',
     difficulty: 'senior',
-    description: "A commercial lease has been redlined by opposing counsel. Review each change carefully—some are routine, but one is potentially damaging to your client.",
-    objective: "Accept legitimate changes and reject any changes that harm your client's interests.",
+    description: 'You are reviewing redlines on behalf of the tenant. Opposing counsel has proposed several edits; some are routine, but one deletion could seriously harm your tenant client.',
+    objective: "Protect TechStart Inc. (Tenant): accept helpful or neutral edits, and reject anything that harms the tenant's rights.",
     skills: ['Track Changes', 'Contract Review', 'Risk Analysis'],
     tasks: [
       { id: 't3-1', description: 'Review the lease extension option insertion', hint: 'This addition benefits your client (tenant)' },
@@ -101,3 +101,4 @@ export const levels: Level[] = [
     initialDocument: level3Document,
   },
 ];
+

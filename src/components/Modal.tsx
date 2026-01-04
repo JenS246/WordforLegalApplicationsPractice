@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, CheckCircle, XCircle, Trophy, ArrowLeft } from 'lucide-react';
+import { X, XCircle, Trophy, ArrowLeft } from 'lucide-react';
 import type { GradingResult } from '../types';
 
 interface ModalProps {

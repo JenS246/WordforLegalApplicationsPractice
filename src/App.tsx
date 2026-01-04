@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Dashboard } from './components/Dashboard';
 import { WordSimulator } from './components/WordSimulator';
 import { TaskSidebar } from './components/TaskSidebar';
@@ -79,6 +79,12 @@ function App() {
     if (currentLevel && currentLevelId) {
       const newCompleted = new Set<string>();
       const htmlLower = newHtml.toLowerCase();
+      let parsedDoc: Document | null = null;
+
+      if (typeof DOMParser !== 'undefined') {
+        const parser = new DOMParser();
+        parsedDoc = parser.parseFromString(newHtml, 'text/html');
+      }
       
       // Level 1 task checking
       if (currentLevelId === 1) {
@@ -97,28 +103,68 @@ function App() {
         const applicableH2 = /<h2[^>]*>.*?applicable law.*?<\/h2>/i.test(newHtml);
         if (statementH2 && legalH2 && applicableH2) newCompleted.add('t1-3');
         
-        // Check body text is 12pt (simplified check)
-        const has12pt = htmlLower.includes('12pt') || !htmlLower.includes('font-size');
-        if (has12pt && noComicSans) newCompleted.add('t1-4');
+        // Check body paragraphs (p tags) are explicitly 12pt
+        const paragraphs = parsedDoc
+          ? Array.from(parsedDoc.querySelectorAll('p'))
+          : [];
+        const paragraphsAre12pt =
+          paragraphs.length > 0 &&
+          paragraphs.every((p) => {
+            const style = p.getAttribute('style') || '';
+            const match = style.match(/font-size\s*:\s*([0-9.]+)\s*pt/i);
+            if (!match) return false;
+            const size = parseFloat(match[1]);
+            return Math.abs(size - 12) < 0.01;
+          });
+        if (paragraphsAre12pt && noComicSans) newCompleted.add('t1-4');
       }
       
       // Level 2 task checking
       if (currentLevelId === 2) {
-        // Check for marked citations
-        const markedCitations = (newHtml.match(/data-citation="true"/g) || []).length;
-        const citationMarks = (newHtml.match(/class="citation-marked"/g) || []).length;
-        const totalMarks = markedCitations + citationMarks;
-        
-        if (htmlLower.includes('anderson') && totalMarks > 0) newCompleted.add('t2-1');
-        if (htmlLower.includes('celotex') && totalMarks > 1) newCompleted.add('t2-2');
-        if (htmlLower.includes('palsgraf') && totalMarks > 2) newCompleted.add('t2-3');
-        
-        // Check if all 6 citations are marked
-        if (totalMarks >= 6) newCompleted.add('t2-4');
-        
+        let citationTexts: string[] = [];
+
+        if (parsedDoc) {
+          const citationElements = Array.from(
+            parsedDoc.querySelectorAll('mark[data-citation], .citation-marked'),
+          );
+          citationTexts = citationElements
+            .map((node) => node.textContent?.toLowerCase().trim() || '')
+            .filter(Boolean);
+        }
+
+        const hasCitation = (needle: string) =>
+          citationTexts.some((text) => text.includes(needle.toLowerCase()));
+
+        if (hasCitation('anderson v. liberty lobby')) newCompleted.add('t2-1');
+        if (hasCitation('celotex corp. v. catrett')) newCompleted.add('t2-2');
+        if (hasCitation('palsgraf v. long island railroad')) newCompleted.add('t2-3');
+
+        const requiredCases = [
+          'anderson v. liberty lobby',
+          'celotex corp. v. catrett',
+          'palsgraf v. long island railroad',
+          'rowland v. christian',
+          'li v. yellow cab',
+          'knight v. jewett',
+        ];
+        if (requiredCases.every((citation) => hasCitation(citation))) {
+          newCompleted.add('t2-4');
+        }
+
         // Check for TOA
-        const hasTOA = htmlLower.includes('table of authorities');
-        if (hasTOA) newCompleted.add('t2-5');
+        let toaAtTop = false;
+        if (parsedDoc) {
+          const toaNode = parsedDoc.querySelector('.toa-block, [data-toa="true"]');
+          const bodyElements = Array.from(parsedDoc.body.children).filter(
+            (el) => el.textContent && el.textContent.trim().length > 0,
+          );
+          const toaIndex = bodyElements.findIndex((el) => {
+            if (toaNode) return el === toaNode || el.contains(toaNode);
+            return (el.textContent || '').toLowerCase().includes('table of authorities');
+          });
+          toaAtTop = toaIndex !== -1 && toaIndex <= 1;
+        }
+        if (toaAtTop) newCompleted.add('t2-5');
       }
       
       // Level 3 task checking

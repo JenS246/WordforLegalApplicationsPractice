@@ -170,18 +170,19 @@ export function gradeLevel2(html: string): GradingResult {
     return { passed: false, score, maxScore, errors, feedback: 'You need to generate a Table of Authorities.' };
   }
   
-  // Check 2: TOA is in correct position (before ARGUMENT section)
-  const htmlLower = html.toLowerCase();
-  const toaPosition = htmlLower.indexOf('table of authorities');
-  const argumentPosition = htmlLower.indexOf('iii. argument');
-  
-  if (toaPosition !== -1 && argumentPosition !== -1 && toaPosition < argumentPosition) {
-    score++;
-  } else if (toaPosition !== -1 && argumentPosition === -1) {
-    // If ARGUMENT section not found, give benefit of doubt
+  // Check 2: TOA is at the top of the document (right at the start)
+  const bodyElements = Array.from(doc.body.children).filter(
+    (el) => el.textContent && el.textContent.trim().length > 0,
+  );
+  const normalizedToaIndex = bodyElements.findIndex((el) => {
+    if (toaElement) return el === toaElement || el.contains(toaElement);
+    return (el.textContent || '').toLowerCase().includes('table of authorities');
+  });
+
+  if (normalizedToaIndex !== -1 && normalizedToaIndex <= 1) {
     score++;
   } else {
-    errors.push('The Table of Authorities should be placed before the ARGUMENT section.');
+    errors.push('The Table of Authorities must be placed at the very top of the document (directly under the title).');
   }
   
   // Check 3: All citations are marked (check for citation marks)

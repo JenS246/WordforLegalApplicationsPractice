@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, Circle, Target, Lightbulb, HelpCircle } from 'lucide-react';
+import { CheckCircle, Target, Lightbulb, HelpCircle } from 'lucide-react';
 import type { Task } from '../types';
 
 interface TaskSidebarProps {

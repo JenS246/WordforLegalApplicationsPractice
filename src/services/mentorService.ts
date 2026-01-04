@@ -36,7 +36,7 @@ const level1Responses: Record<string, MentorResponse> = {
 
 const level2Responses: Record<string, MentorResponse> = {
   toa: {
-    message: "A Table of Authorities (TOA) is like a bibliography for legal citations. It lists all the cases cited in your document. First, mark each citation using the Mark Citation button, then generate the TOA.",
+    message: "A Table of Authorities (TOA) is like a bibliography for legal citations. It lists all the cases cited in your document. First, mark each citation using the Mark Citation button, then generate the TOA and place it right at the top of the memo.",
     isHint: true,
   },
   citation: {
@@ -48,7 +48,7 @@ const level2Responses: Record<string, MentorResponse> = {
     isHint: true,
   },
   insert: {
-    message: "After marking all citations, click on the paragraph where you want the TOA to appear (before the Argument section), then click 'Insert TOA' in the References tab.",
+    message: "After marking all citations, click 'Insert TOA' to enter placement mode. Hover to move the placement indicator and click at the very top of the document (right under the title) to drop the TOA. Use Exit Placement in the ribbon if you change your mind.",
     isHint: true,
   },
   case: {
@@ -56,7 +56,7 @@ const level2Responses: Record<string, MentorResponse> = {
     isHint: true,
   },
   help: {
-    message: "The workflow is: 1) Find each case citation in the document, 2) Click on it and Mark Citation, 3) Repeat for all citations, 4) Click where you want the TOA, 5) Insert TOA. Need help finding the citations?",
+    message: "The workflow is: 1) Find each case citation in the document, 2) Click on it and Mark Citation, 3) Repeat for all citations, 4) Click Insert TOA to enter placement mode, 5) Click at the top of the document to place it. Need help finding the citations?",
     isHint: false,
   },
   stuck: {
@@ -75,27 +75,27 @@ const level3Responses: Record<string, MentorResponse> = {
     isHint: true,
   },
   reject: {
-    message: "To reject a change, select the paragraph and click 'Reject'. For deletions, this KEEPS the original text. For insertions, this REMOVES the proposed addition.",
+    message: "To reject a change, select the paragraph and click 'Reject'. For deletions, this keeps the original text. For insertions, this removes the proposed addition.",
     isHint: true,
   },
   delete: {
-    message: "⚠️ Be very careful with deletions! In this lease, there's a proposed deletion of the termination clause. Ask yourself: does removing this benefit or harm our client (the tenant)?",
+    message: "Be very careful with deletions. In this lease, there's a proposed deletion of the termination clause. Ask yourself whether removing it helps or hurts our tenant client.",
     isHint: true,
   },
   termination: {
-    message: "🚨 The termination clause allows our client to exit the lease early with proper notice. If we accept the deletion, our client would be locked in for 3 years with NO exit option. That's a major risk!",
+    message: "The termination clause lets our tenant client exit the lease early with proper notice. Accepting the deletion would lock them in for 3 years with no exit option - that's a major risk.",
     isHint: true,
   },
   insert: {
-    message: "The insertions in this lease are: 1) A lease extension option (good for tenant!), 2) A late fee provision (standard commercial term). Both are generally acceptable.",
+    message: "The insertions in this lease are: 1) a lease extension option (good for the tenant), 2) a late fee provision (standard commercial term). Both are generally acceptable.",
     isHint: true,
   },
   help: {
-    message: "Review each change: Accept insertions that benefit or are neutral to your client. REJECT deletions that harm your client's interests. The termination clause deletion is the critical one!",
+    message: "Review each change: accept insertions that benefit or are neutral to your client. Reject deletions that harm your client's interests. The termination clause deletion is the critical one.",
     isHint: false,
   },
   stuck: {
-    message: "Here's the key insight: Your client is the TENANT. Ask for each change: 'Does this help or hurt the tenant?' The extension option helps. The late fee is neutral. But losing the termination clause? That hurts!",
+    message: "Here's the key insight: your client is the tenant. Ask for each change: 'Does this help or hurt the tenant?' The extension option helps. The late fee is neutral. But losing the termination clause? That hurts.",
     isHint: true,
   },
   client: {
@@ -145,13 +145,19 @@ export function getMentorResponse(query: string, levelId: number): string {
 export function getWelcomeMessage(levelId: number): string {
   switch (levelId) {
     case 1:
-      return "Hi! I'm Sarah, your senior paralegal mentor. 👋 I see you're working on the formatting exercise. That Comic Sans has GOT to go! Let me know if you need any tips on fonts or heading styles.";
+      return "Hi! I'm Sarah, your senior paralegal mentor. I see you're working on the formatting exercise. That Comic Sans has GOT to go! Let me know if you need any tips on fonts or heading styles.";
     case 2:
-      return "Welcome back! This one's about building a Table of Authorities. It looks intimidating, but I'll walk you through it. Start by finding the case citations in the Argument section. Ask me if you need help!";
+      return "Welcome back! This one's about building a Table of Authorities. It looks intimidating, but I'll walk you through it. Start by finding the case citations in the Argument section, then drop the TOA at the top of the memo using placement mode. Ask me if you need help!";
     case 3:
-      return "This is the advanced level - contract redlining. 🔍 Be very careful here. Not all changes are equal. Some insertions are fine, but there's one deletion that could really hurt our client. What do you think it might be?";
+      return "This is the advanced level - contract redlining. We represent the tenant, TechStart Inc., so judge every change by whether it helps or hurts the tenant. Some insertions are fine, but one deletion could really hurt our client. What do you think it might be?";
     default:
       return "Hi! I'm Sarah, your senior paralegal mentor. How can I help you today?";
   }
 }
+
+
+
+
+
+
 
