@@ -6,7 +6,4 @@ export default defineConfig({
   plugins: [react()],
   // Ensure assets resolve correctly when served from GitHub Pages project site
   base: "/WordforLegalApplicationsPractice/",
-  build: {
-    outDir: "docs",
-  },
 })
