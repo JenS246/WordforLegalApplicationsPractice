@@ -307,7 +307,6 @@ export function gradeLevel4(html: string): GradingResult {
   const maxScore = 4;
 
   const doc = parseHTML(html);
-  const htmlLower = html.toLowerCase();
   const fullText = doc.body.textContent?.toLowerCase() || '';
 
   // Check 1: Formatting (Times New Roman, Heading 1 title, Heading 2 sections, 12pt body)
