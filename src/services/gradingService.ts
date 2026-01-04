@@ -21,6 +21,12 @@ function getFontSize(element: Element): string | null {
   return sizeMatch ? sizeMatch[1].trim() : null;
 }
 
+const isTwelvePoint = (size: string | null): boolean => {
+  if (!size) return true; // treat unspecified as acceptable/default
+  const cleaned = size.toLowerCase().replace(/\s+/g, '');
+  return /^12(\.0+)?(pt|px)?$/.test(cleaned);
+};
+
 export function gradeLevel1(html: string): GradingResult {
   const errors: string[] = [];
   let score = 0;
@@ -114,11 +120,8 @@ export function gradeLevel1(html: string): GradingResult {
     
     // Check font size
     const size = getFontSize(p);
-    if (size && size !== '12pt' && size !== '12px') {
-      // 14pt for headers is expected, only body should be 12pt
-      if (!content.includes('Johnson v.')) { // Skip subtitle
-        wrongSizeCount++;
-      }
+    if (!isTwelvePoint(size) && !content.includes('Johnson v.')) {
+      wrongSizeCount++;
     }
   });
   
@@ -298,6 +301,124 @@ export function gradeLevel3(html: string): GradingResult {
   };
 }
 
+export function gradeLevel4(html: string): GradingResult {
+  const errors: string[] = [];
+  let score = 0;
+  const maxScore = 4;
+
+  const doc = parseHTML(html);
+  const htmlLower = html.toLowerCase();
+  const fullText = doc.body.textContent?.toLowerCase() || '';
+
+  // Check 1: Formatting (Times New Roman, Heading 1 title, Heading 2 sections, 12pt body)
+  const elements = Array.from(doc.querySelectorAll('p, h1, h2, h3'));
+  const allTimesNewRoman =
+    elements.length > 0 &&
+    elements.every((el) => {
+      const style = el.getAttribute('style') || '';
+      if (/comic sans/i.test(style)) return false;
+      if (/calibri/i.test(style)) return false;
+      const fontMatch = style.match(/font-family\s*:\s*([^;]+)/i);
+      return !fontMatch || /times new roman/i.test(fontMatch[1]);
+    });
+
+  const bodyParagraphs = Array.from(doc.querySelectorAll('p'));
+  const captionPlaceholderMatch = (text: string) => {
+    const lower = text.toLowerCase();
+    return (
+      lower.includes('CAPTION WOULD BE INSERTED HERE') ||
+      lower.includes('CAPTION WOULD BE HERE') ||
+      lower.includes('[A')
+    );
+  };
+  const paragraphsToCheck = bodyParagraphs.filter(
+    (p) => !captionPlaceholderMatch(p.textContent || ''),
+  );
+  const bodySizeOk =
+    paragraphsToCheck.length === 0 ||
+    paragraphsToCheck.every((p) => {
+      const sizeMatch = (p.getAttribute('style') || '').match(/font-size\s*:\s*([0-9.]+)pt/i);
+      if (!sizeMatch) return true;
+      const size = parseFloat(sizeMatch[1]);
+      return Math.abs(size - 12) < 0.01;
+    });
+
+  const titleOk = /<h1[^>]*>.*?motion in limine.*?<\/h1>/i.test(html);
+  const h2Labels = ['Background', 'Issues Presented', 'Argument', 'Relief Requested'];
+  const h2Ok = h2Labels.every((label) => new RegExp(`<h2[^>]*>.*?${label}.*?<\\/h2>`, 'i').test(html));
+
+  if (allTimesNewRoman && bodySizeOk && titleOk && h2Ok) {
+    score++;
+  } else {
+    errors.push('Formatting is off: ensure Times New Roman throughout, 12pt body text, a Heading 1 title, and Heading 2 section headers.');
+  }
+
+  // Check 2: Citations marked and TOA at top
+  const requiredCitations = ['daubert v. merrell dow', 'kumho tire co. v. carmichael', 'people v. sanchez'];
+  const toaElement = doc.querySelector('.toa-block, [data-toa="true"]');
+  const bodyEls = Array.from(doc.body.children).filter((el) => el.textContent && el.textContent.trim().length > 0);
+  const toaIndex = bodyEls.findIndex((el) => {
+    if (toaElement) return el === toaElement || el.contains(toaElement);
+    return (el.textContent || '').toLowerCase().includes('table of authorities');
+  });
+  const titleIndex = bodyEls.findIndex(
+    (el) =>
+      el.tagName.toLowerCase() === 'h1' &&
+      (el.textContent || '').toLowerCase().includes('motion in limine'),
+  );
+  const toaAtTop =
+    toaIndex !== -1 && (titleIndex === -1 ? toaIndex <= 1 : toaIndex <= titleIndex + 1);
+
+  const markedCitations = Array.from(doc.querySelectorAll('mark[data-citation], .citation-marked')).map(
+    (el) => (el.textContent || '').toLowerCase(),
+  );
+  const toaText = (toaElement?.textContent || '').toLowerCase();
+  const missingCitations = requiredCitations.filter((c) => {
+    const caseName = c.split(' v. ')[0];
+    return !markedCitations.some((text) => text.includes(caseName)) && !toaText.includes(caseName);
+  });
+
+  if (toaElement && toaAtTop && missingCitations.length === 0) {
+    score++;
+  } else {
+    if (!toaElement) errors.push('Insert a Table of Authorities.');
+    else if (!toaAtTop) errors.push('Place the Table of Authorities at the very top under the title.');
+    if (missingCitations.length) errors.push(`Mark these citations and rebuild the TOA: ${missingCitations.join(', ')}`);
+  }
+
+  // Check 3: Helpful insertion accepted
+  const insertionText = 'provide all materials relied on by dr. lee';
+  const insertionPresent = fullText.includes(insertionText);
+  const insertionStillMarked = /<ins[^>]*>.*?provide all materials relied on by dr\. lee/i.test(html);
+  if (insertionPresent && !insertionStillMarked) {
+    score++;
+  } else {
+    errors.push('Accept the insertion committing to provide Dr. Lee materials (remove the insertion mark, keep the text).');
+  }
+
+  // Check 4: Harmful deletion rejected
+  const deletionText = 'may supplement opinions up to the eve of trial';
+  const deletionPresent = fullText.includes(deletionText);
+  const deletionStillMarked = /<del[^>]*>.*?may supplement opinions up to the eve of trial/i.test(html);
+  if (deletionPresent && !deletionStillMarked) {
+    score++;
+  } else {
+    errors.push('Reject the deletion that would allow unlimited expert supplements (keep the sentence and remove the deletion mark).');
+  }
+
+  const passed = score >= maxScore;
+
+  return {
+    passed,
+    score,
+    maxScore,
+    errors,
+    feedback: passed
+      ? 'Great work. The motion reads filing-ready: formatting is clean, citations are marked with a TOA on top, and your change decisions protect the client.'
+      : 'Close the gaps above to reach filing-ready quality: check formatting, TOA placement, and your accept or reject decisions.',
+  };
+}
+
 export function gradeDocument(levelId: number, html: string): GradingResult {
   switch (levelId) {
     case 1:
@@ -306,6 +427,8 @@ export function gradeDocument(levelId: number, html: string): GradingResult {
       return gradeLevel2(html);
     case 3:
       return gradeLevel3(html);
+    case 4:
+      return gradeLevel4(html);
     default:
       return {
         passed: false,

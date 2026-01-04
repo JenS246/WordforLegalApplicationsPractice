@@ -10,6 +10,7 @@ import {
   XSquare,
   FileText,
   ChevronDown,
+  RefreshCw,
 } from 'lucide-react';
 import type { RibbonTab, Toast } from '../types';
 
@@ -59,6 +60,16 @@ const FONT_FAMILIES = [
 ];
 const FONT_SIZES = ['10pt', '11pt', '12pt', '14pt', '16pt', '18pt', '20pt', '24pt', '28pt'];
 
+const LEVEL_CITATION_SPLITS: Record<number, string[]> = {
+  4: [
+    'Daubert v. Merrell Dow Pharmaceuticals, Inc., 509 U.S. 579 (1993)',
+    'Kumho Tire Co. v. Carmichael, 526 U.S. 137 (1999)',
+    'People v. Sanchez, 63 Cal. 4th 665 (2016)',
+  ],
+};
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const splitIntoSentences = (text: string): string[] => {
   const normalized = text.replace(/\s+/g, ' ').trim();
   if (!normalized) return [];
@@ -73,6 +84,7 @@ const splitIntoSentences = (text: string): string[] => {
     'u.s.',
     'n.y.',
     'cal.',
+    'dr.',
     'no.',
     'llc',
     'l.l.c.',
@@ -96,6 +108,9 @@ const splitIntoSentences = (text: string): string[] => {
   while ((match = regex.exec(normalized)) !== null) {
     const endIdx = (match.index ?? 0) + 1; // include the punctuation
     const snippet = normalized.slice(start, endIdx).trim();
+    if (/^\d+\.$/.test(snippet)) {
+      continue; // keep list numbering (e.g., "1.") attached to the sentence
+    }
     const lastWord = snippet.split(' ').pop()?.toLowerCase();
     if (lastWord && abbreviations.has(lastWord)) {
       continue; // skip splitting on abbreviations common in citations
@@ -107,6 +122,29 @@ const splitIntoSentences = (text: string): string[] => {
   if (tail) sentences.push(tail);
 
   return sentences.length ? sentences : [normalized];
+};
+
+const splitByCitations = (text: string, citations: string[]): string[] => {
+  if (!citations.length) return [text];
+  const pattern = citations.map((citation) => escapeRegExp(citation)).join('|');
+  if (!pattern) return [text];
+  const regex = new RegExp(`(${pattern})([.,;:]?)`, 'gi');
+  const parts: string[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(text)) !== null) {
+    const before = text.slice(lastIndex, match.index).trim();
+    if (before) parts.push(before);
+    const citationPart = `${match[1] || ''}${match[2] || ''}`.trim();
+    if (citationPart) parts.push(citationPart);
+    lastIndex = match.index + match[0].length;
+  }
+
+  const tail = text.slice(lastIndex).trim();
+  if (tail) parts.push(tail);
+
+  return parts.length ? parts : [text];
 };
 
 const escapeHtml = (text: string) =>
@@ -239,12 +277,18 @@ const blocksToHtml = (blocks: ContentBlock[]): string => {
   return htmlParts.join('');
 };
 
-const parseHtmlToBlocks = (html: string): ContentBlock[] => {
+const parseHtmlToBlocks = (
+  html: string,
+  options?: {
+    citationSplits?: string[];
+  },
+): ContentBlock[] => {
   if (typeof DOMParser === 'undefined') return [];
 
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
   const output: ContentBlock[] = [];
+  const citationSplits = options?.citationSplits?.filter(Boolean) ?? [];
 
   const pushSentences = (
     containerId: string,
@@ -257,7 +301,10 @@ const parseHtmlToBlocks = (html: string): ContentBlock[] => {
     isCitation?: boolean,
   ) => {
     const sentences = tag.startsWith('h') ? [text.trim()] : splitIntoSentences(text);
-    sentences.forEach((sentence) => {
+    const expanded = citationSplits.length && !tag.startsWith('h')
+      ? sentences.flatMap((sentence) => splitByCitations(sentence, citationSplits))
+      : sentences;
+    expanded.forEach((sentence) => {
       if (!sentence) return;
       output.push({
         kind: 'sentence',
@@ -357,12 +404,13 @@ export const WordSimulator: React.FC<WordSimulatorProps> = ({
   }, []);
 
   useEffect(() => {
-    setBlocks(parseHtmlToBlocks(initialContent));
+    const citationSplits = LEVEL_CITATION_SPLITS[levelId] || [];
+    setBlocks(parseHtmlToBlocks(initialContent, { citationSplits }));
     setSelectedIds(new Set());
     setIsInitialized(true);
     setIsPlacingTOA(false);
     setPlacementPreviewIndex(null);
-  }, [initialContent]);
+  }, [initialContent, levelId]);
 
   useEffect(() => {
     document.addEventListener('click', closeDropdowns);
@@ -471,8 +519,9 @@ export const WordSimulator: React.FC<WordSimulatorProps> = ({
         }),
       );
       onToast(`Font changed to ${font}`, 'success');
+      clearSelection();
     },
-    [selectedIds, updateBlocks, onToast],
+    [selectedIds, updateBlocks, onToast, clearSelection],
   );
 
   const setFontSize = useCallback(
@@ -486,8 +535,9 @@ export const WordSimulator: React.FC<WordSimulatorProps> = ({
         }),
       );
       onToast(`Font size set to ${size}`, 'success');
+      clearSelection();
     },
-    [selectedIds, updateBlocks, onToast],
+    [selectedIds, updateBlocks, onToast, clearSelection],
   );
 
   const markCitation = useCallback(() => {
@@ -513,6 +563,36 @@ export const WordSimulator: React.FC<WordSimulatorProps> = ({
     onToast('Table of Authorities removed. Re-run Insert TOA to place it again.', 'info');
   }, [updateBlocks, onToast]);
 
+  const updateTOAFromCitations = useCallback(() => {
+    const citations = blocks
+      .filter((b): b is SentenceBlock => isSentenceBlock(b) && Boolean(b.isCitation))
+      .map((b) => b.text.trim())
+      .filter(Boolean);
+
+    if (!citations.length) {
+      onToast('No citations marked. Mark citations before updating the TOA.', 'warning');
+      return;
+    }
+
+    const pageLabel = levelId === 2 || levelId === 4 ? '1' : 'passim';
+    const { html: toaHtml, count } = buildTOAHtml(citations, pageLabel);
+    let updated = false;
+    updateBlocks((prev) =>
+      prev.map((block) => {
+        if (!updated && isTOABlock(block)) {
+          updated = true;
+          return { ...block, html: toaHtml, specialType: 'toa' };
+        }
+        return block;
+      }),
+    );
+
+    onToast(
+      `Table of Authorities updated with ${count} citation${count === 1 ? '' : 's'}`,
+      'success',
+    );
+  }, [blocks, updateBlocks, onToast, levelId]);
+
   const placeTOAAtIndex = useCallback(
     (targetIndex: number) => {
       const citations = blocks
@@ -527,7 +607,7 @@ export const WordSimulator: React.FC<WordSimulatorProps> = ({
         return;
       }
 
-      const pageLabel = levelId === 2 ? '1' : 'passim';
+      const pageLabel = levelId === 2 || levelId === 4 ? '1' : 'passim';
       const { html: toaHtml, count } = buildTOAHtml(citations, pageLabel);
       const filteredBlocks = blocks.filter((b) => !isTOABlock(b));
       const clampedIndex = Math.max(0, Math.min(targetIndex, filteredBlocks.length));
@@ -1015,16 +1095,28 @@ export const WordSimulator: React.FC<WordSimulatorProps> = ({
                       />
                       <div className="toa-actions">
                         <span className="toa-hint">Table of Authorities</span>
-                        <button
-                          className="toa-delete-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeTOA();
-                          }}
-                        >
-                          <XSquare className="w-4 h-4" />
-                          <span>Delete TOA</span>
-                        </button>
+                        <div className="toa-action-buttons">
+                          <button
+                            className="toa-update-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateTOAFromCitations();
+                            }}
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                            <span>Update</span>
+                          </button>
+                          <button
+                            className="toa-delete-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeTOA();
+                            }}
+                          >
+                            <XSquare className="w-4 h-4" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ) : (

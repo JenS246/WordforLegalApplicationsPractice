@@ -104,6 +104,33 @@ const level3Responses: Record<string, MentorResponse> = {
   },
 };
 
+const level4Responses: Record<string, MentorResponse> = {
+  format: {
+    message: 'Normalize the document first: Times New Roman everywhere, 12pt body text, Heading 1 for the title, and Heading 2 for section headers.',
+    isHint: true,
+  },
+  citations: {
+    message: 'Mark the citations for Daubert, Kumho Tire, and Sanchez. After marking, rebuild the TOA and place it directly under the title (beneath the caption block).',
+    isHint: true,
+  },
+  toa: {
+    message: 'Insert the TOA at the very top of the motion, right below the title (beneath the caption block). Placement matters for grading.',
+    isHint: true,
+  },
+  track: {
+    message: 'Accept the insertion promising to provide Dr. Lee materials within five days. Reject the deletion that would allow unlimited expert supplements.',
+    isHint: true,
+  },
+  help: {
+    message: 'Order of operations: (1) fix fonts and headings, (2) mark Daubert, Kumho Tire, and Sanchez, (3) insert the TOA under the title (beneath the caption), (4) accept the production deadline insertion, (5) reject the unlimited supplement deletion.',
+    isHint: false,
+  },
+  stuck: {
+    message: 'If you are stuck, take it in phases: formatting, then citations and TOA, then the two tracked changes. That keeps the workflow clear.',
+    isHint: true,
+  },
+};
+
 const genericResponses: MentorResponse[] = [
   { message: "I'm Sarah, your senior paralegal mentor! What can I help you with?", isHint: false },
   { message: "That's a great question! Could you be more specific about what you're trying to do?", isHint: false },
@@ -125,6 +152,9 @@ export function getMentorResponse(query: string, levelId: number): string {
       break;
     case 3:
       responses = level3Responses;
+      break;
+    case 4:
+      responses = level4Responses;
       break;
     default:
       responses = {};
@@ -150,6 +180,8 @@ export function getWelcomeMessage(levelId: number): string {
       return "Welcome back! This one's about building a Table of Authorities. It looks intimidating, but I'll walk you through it. Start by finding the case citations in the Argument section, then drop the TOA at the top of the memo using placement mode. Ask me if you need help!";
     case 3:
       return "This is the advanced level - contract redlining. We represent the tenant, TechStart Inc., so judge every change by whether it helps or hurts the tenant. Some insertions are fine, but one deletion could really hurt our client. What do you think it might be?";
+    case 4:
+      return "Final challenge: make this motion filing-ready. Clean the formatting, mark every case, insert the TOA under the title (beneath the caption), and make smart accept or reject calls on the tracked changes before you send it to your supervising attorney.";
     default:
       return "Hi! I'm Sarah, your senior paralegal mentor. How can I help you today?";
   }

@@ -189,6 +189,86 @@ function App() {
           newCompleted.add('t3-5');
         }
       }
+
+      // Level 4 task checking
+      if (currentLevelId === 4) {
+        const elements = parsedDoc
+          ? Array.from(parsedDoc.querySelectorAll('p, h1, h2, h3'))
+          : [];
+        const allTimesNewRoman =
+          elements.length > 0 &&
+          elements.every((el) => {
+            const style = el.getAttribute('style') || '';
+            if (/comic sans/i.test(style)) return false;
+            if (/calibri/i.test(style)) return false;
+            const fontMatch = style.match(/font-family\s*:\s*([^;]+)/i);
+            return !fontMatch || /times new roman/i.test(fontMatch[1]);
+          });
+
+        const paragraphs = parsedDoc ? Array.from(parsedDoc.querySelectorAll('p')) : [];
+        const bodySizeOk =
+          paragraphs.length > 0 &&
+          paragraphs.every((p) => {
+            const sizeMatch = (p.getAttribute('style') || '').match(/font-size\s*:\s*([0-9.]+)pt/i);
+            if (!sizeMatch) return true;
+            const size = parseFloat(sizeMatch[1]);
+            return Math.abs(size - 12) < 0.01;
+          });
+
+        const titleOk = /<h1[^>]*>.*?motion in limine.*?<\/h1>/i.test(newHtml);
+        const sectionLabels = ['Background', 'Issues Presented', 'Argument', 'Relief Requested'];
+        const sectionsOk = sectionLabels.every((label) =>
+          new RegExp(`<h2[^>]*>.*?${label}.*?<\\/h2>`, 'i').test(newHtml),
+        );
+        if (allTimesNewRoman && bodySizeOk && titleOk && sectionsOk) {
+          newCompleted.add('t4-1');
+        }
+
+        // Citations and TOA placement
+        let toaAtTop = false;
+        if (parsedDoc) {
+          const toaNode = parsedDoc.querySelector('.toa-block, [data-toa="true"]');
+          const bodyEls = Array.from(parsedDoc.body.children).filter(
+            (el) => el.textContent && el.textContent.trim().length > 0,
+          );
+          const toaIndex = bodyEls.findIndex((el) => {
+            if (toaNode) return el === toaNode || el.contains(toaNode);
+            return (el.textContent || '').toLowerCase().includes('table of authorities');
+          });
+          toaAtTop = toaIndex !== -1 && toaIndex <= 1;
+        }
+
+        const markedCitations = parsedDoc
+          ? Array.from(parsedDoc.querySelectorAll('mark[data-citation], .citation-marked')).map(
+              (el) => (el.textContent || '').toLowerCase(),
+            )
+          : [];
+        const hasCitation = (needle: string) => markedCitations.some((text) => text.includes(needle));
+        if (
+          toaAtTop &&
+          hasCitation('daubert v. merrell dow') &&
+          hasCitation('kumho tire co. v. carmichael') &&
+          hasCitation('people v. sanchez')
+        ) {
+          newCompleted.add('t4-2');
+        }
+
+        // Insertion accepted
+        const insertionText = 'provide all materials relied on by dr. lee';
+        const insertionPresent = htmlLower.includes(insertionText);
+        const insertionMarked = /<ins[^>]*>.*?provide all materials relied on by dr\. lee/i.test(newHtml);
+        if (insertionPresent && !insertionMarked) {
+          newCompleted.add('t4-3');
+        }
+
+        // Deletion rejected
+        const deletionText = 'may supplement opinions up to the eve of trial';
+        const deletionPresent = htmlLower.includes(deletionText);
+        const deletionMarked = /<del[^>]*>.*?may supplement opinions up to the eve of trial/i.test(newHtml);
+        if (deletionPresent && !deletionMarked) {
+          newCompleted.add('t4-4');
+        }
+      }
       
       setCompletedTasks(newCompleted);
     }

@@ -1,10 +1,10 @@
 import React from 'react';
-import { 
-  Scale, 
-  FileText, 
-  BookOpen, 
-  Trophy, 
-  Star, 
+import {
+  Scale,
+  FileText,
+  BookOpen,
+  ClipboardList,
+  Star,
   ChevronRight,
   Sparkles,
   GraduationCap,
@@ -18,69 +18,109 @@ interface DashboardProps {
   onSelectLevel: (levelId: number) => void;
 }
 
-const difficultyConfig: Record<Difficulty, { label: string; class: string; icon: React.ReactNode }> = {
-  junior: { 
-    label: 'Junior', 
-    class: 'badge-junior',
-    icon: <Star className="w-3 h-3" />,
-  },
-  associate: { 
-    label: 'Associate', 
-    class: 'badge-associate',
-    icon: <Zap className="w-3 h-3" />,
-  },
-  senior: { 
-    label: 'Senior', 
-    class: 'badge-senior',
-    icon: <Trophy className="w-3 h-3" />,
-  },
-};
+const difficultyConfig: Record<Difficulty, { label: string; class: string; icon: React.ReactNode }> =
+  {
+    junior: {
+      label: 'Junior',
+      class: 'badge-junior',
+      icon: <Star className="w-3 h-3" />,
+    },
+    associate: {
+      label: 'Associate',
+      class: 'badge-associate',
+      icon: <Zap className="w-3 h-3" />,
+    },
+    senior: {
+      label: 'Senior',
+      class: 'badge-senior',
+      icon: <Scale className="w-3 h-3" />,
+    },
+  };
 
 const levelIcons = [
-  <FileText className="w-8 h-8" />,
-  <BookOpen className="w-8 h-8" />,
-  <Scale className="w-8 h-8" />,
+  <FileText className="w-8 h-8 text-slate-700" />,
+  <BookOpen className="w-8 h-8 text-slate-700" />,
+  <Scale className="w-8 h-8 text-slate-700" />,
+  <ClipboardList className="w-8 h-8 text-slate-700" />,
 ];
 
 export const Dashboard: React.FC<DashboardProps> = ({ onSelectLevel }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <header className="border-b border-slate-700/50 backdrop-blur-sm bg-slate-900/50 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <Scale className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">ParaPro Word Challenge</h1>
-                <p className="text-slate-400 text-xs">Legal Document Training Simulator</p>
-              </div>
+    <div className="min-h-screen bg-slate-100 text-slate-900">
+      {/* Ribbon-style Header */}
+      <header className="word-ribbon shadow-sm">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="word-ribbon-mark">
+              <Scale className="w-5 h-5 text-white" />
             </div>
-            <div className="flex items-center gap-2 text-slate-400 text-sm">
-              <GraduationCap className="w-4 h-4" />
-              <span>Training Mode</span>
+            <div>
+              <h1 className="text-lg font-semibold text-white">ParaPro Word Lab</h1>
+              <p className="text-slate-200 text-xs">Realistic legal document drills</p>
             </div>
+          </div>
+          <div className="flex items-center gap-2 text-slate-100 text-sm">
+            <GraduationCap className="w-4 h-4" />
+            <span>Training Mode</span>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-16 px-6">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-indigo-400 text-sm mb-6">
-            <Sparkles className="w-4 h-4" />
-            <span>Master Legal Document Formatting</span>
+      {/* Hero */}
+      <section className="word-hero">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-[1.35fr,1fr] items-center gap-10 px-6">
+          <div className="flex flex-col gap-4">
+            <div className="word-pill">
+              <Sparkles className="w-4 h-4" />
+              <span>Word-style practice</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
+              Build real-world Word skills for legal work.
+            </h2>
+            <p className="text-slate-600 text-lg">
+              Each mission mirrors how you would format, cite, and review in Microsoft Word. Clear
+              objectives, human mentor cues, and grading that rewards correct habits.
+            </p>
+            <div className="word-note">
+              <strong>How selection works here:</strong> click a paragraph or sentence to select it.
+              In real-world use cases, when using Microsoft Word, you will first click then drag your cursor to highlight selected text.
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <div className="word-check">
+                <span className="dot" />
+                Word ribbon muscle memory
+              </div>
+              <div className="word-check">
+                <span className="dot" />
+                Supervisor-style mentor chat
+              </div>
+              <div className="word-check">
+                <span className="dot" />
+                Instant grading and hints
+              </div>
+            </div>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Become a Document
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400"> Pro</span>
-          </h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-            Practice essential paralegal skills in a simulated Microsoft Word environment. 
-            From basic formatting to complex document review—level up your expertise.
-          </p>
+          <div className="word-hero-card">
+            <div className="word-hero-title">What you will practice</div>
+            <ul className="word-hero-list">
+              <li>
+                <span className="dot" />
+                Converting sloppy formatting into firm-ready Times New Roman.
+              </li>
+              <li>
+                <span className="dot" />
+                Marking citations and inserting a Table of Authorities at the top a page.
+              </li>
+              <li>
+                <span className="dot" />
+                Reviewing redlines with a tenant-first mindset.
+              </li>
+              <li>
+                <span className="dot" />
+                Assembling a final filing that reinforces all of the above skills.
+              </li>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -88,68 +128,50 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSelectLevel }) => {
       <section className="pb-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-2 mb-8">
-            <Target className="w-5 h-5 text-indigo-400" />
-            <h3 className="text-lg font-semibold text-white">Training Missions</h3>
+            <Target className="w-5 h-5 text-blue-700" />
+            <h3 className="text-lg font-semibold text-slate-900">Training missions</h3>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {levels.map((level, index) => {
               const difficulty = difficultyConfig[level.difficulty];
-              
+              const icon = levelIcons[index] || levelIcons[levelIcons.length - 1];
+
               return (
                 <div
                   key={level.id}
                   className="level-card group"
                   onClick={() => onSelectLevel(level.id)}
                 >
-                  {/* Level Number Badge */}
-                  <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-700/50 flex items-center justify-center text-slate-400 text-sm font-bold">
-                    {level.id}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="level-icon">{icon}</div>
+                    <div className="level-id">Lv {level.id}</div>
                   </div>
 
-                  {/* Icon */}
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-4 group-hover:scale-110 transition-transform">
-                    {levelIcons[index]}
-                  </div>
-
-                  {/* Difficulty Badge */}
-                  <div className={`badge ${difficulty.class} mb-3`}>
+                  <div className={`badge ${difficulty.class} mb-2`}>
                     {difficulty.icon}
                     <span className="ml-1">{difficulty.label}</span>
                   </div>
 
-                  {/* Title & Subtitle */}
-                  <h4 className="text-xl font-bold text-white mb-1">{level.title}</h4>
-                  <p className="text-indigo-400 text-sm font-medium mb-3">{level.subtitle}</p>
+                  <h4 className="text-xl font-semibold text-slate-900 mb-1">{level.title}</h4>
+                  <p className="text-blue-700 text-sm font-medium mb-3">{level.subtitle}</p>
 
-                  {/* Description */}
-                  <p className="text-slate-400 text-sm leading-relaxed mb-4">
-                    {level.description}
-                  </p>
+                  <p className="text-slate-600 text-sm leading-relaxed mb-4">{level.description}</p>
 
-                  {/* Skills */}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {level.skills.map((skill, i) => (
-                      <span 
-                        key={i}
-                        className="px-2 py-1 bg-slate-700/50 rounded text-slate-300 text-xs"
-                      >
+                      <span key={i} className="skill-pill">
                         {skill}
                       </span>
                     ))}
                   </div>
 
-                  {/* Tasks Preview */}
-                  <div className="pt-4 border-t border-slate-700/50">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-500">
-                        {level.tasks.length} Tasks
-                      </span>
-                      <span className="text-indigo-400 flex items-center gap-1 group-hover:gap-2 transition-all">
-                        Start Mission
-                        <ChevronRight className="w-4 h-4" />
-                      </span>
-                    </div>
+                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between text-sm text-slate-600">
+                    <span>{level.tasks.length} tasks</span>
+                    <span className="text-blue-700 flex items-center gap-1 group-hover:gap-2 transition-all">
+                      Start
+                      <ChevronRight className="w-4 h-4" />
+                    </span>
                   </div>
                 </div>
               );
@@ -158,48 +180,39 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSelectLevel }) => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-6 bg-slate-800/30 border-t border-slate-700/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mx-auto mb-4">
-                <FileText className="w-6 h-6" />
-              </div>
-              <h4 className="text-white font-semibold mb-2">Realistic Simulation</h4>
-              <p className="text-slate-400 text-sm">
-                Practice with a Word-like interface—no software installation required.
-              </p>
+      {/* Features */}
+      <section className="py-14 px-6 bg-white border-t border-slate-200">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 text-left">
+          <div className="feature-tile">
+            <div className="feature-icon bg-blue-100 text-blue-700">
+              <FileText className="w-6 h-6" />
             </div>
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 mx-auto mb-4">
+            <h4>Word-first UI</h4>
+            <p>Ribbon, fonts, and placement cues match how you would operate in Word day to day.</p>
+          </div>
+            <div className="feature-tile">
+              <div className="feature-icon bg-amber-100 text-amber-700">
                 <Sparkles className="w-6 h-6" />
               </div>
-              <h4 className="text-white font-semibold mb-2">AI Mentor Support</h4>
-              <p className="text-slate-400 text-sm">
-                Get real-time hints and guidance from your virtual senior paralegal.
-              </p>
+              <h4>Mentor guidance</h4>
+              <p>Hints are written like a supervising paralegal so you learn the right habits.</p>
+          </div>
+          <div className="feature-tile">
+            <div className="feature-icon bg-emerald-100 text-emerald-700">
+              <Target className="w-6 h-6" />
             </div>
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-400 mx-auto mb-4">
-                <Target className="w-6 h-6" />
-              </div>
-              <h4 className="text-white font-semibold mb-2">Instant Feedback</h4>
-              <p className="text-slate-400 text-sm">
-                Submit your work and receive detailed grading with specific improvement tips.
-              </p>
-            </div>
+            <h4>Immediate feedback</h4>
+            <p>Submit for grading anytime to see if your citations, formatting, and redlines meet the bar.</p>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-6 px-6 border-t border-slate-700/50">
+      <footer className="py-6 px-6 border-t border-slate-200 bg-slate-50">
         <div className="max-w-6xl mx-auto text-center text-slate-500 text-sm">
-          <p>ParaPro Word Challenge • Educational Training Simulator</p>
+          <p>ParaPro Word Lab · Legal document training simulator</p>
         </div>
       </footer>
     </div>
   );
 };
-

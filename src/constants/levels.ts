@@ -49,6 +49,22 @@ const level3Document = `
 <p style="text-align: justify;">Landlord shall be responsible for structural repairs and maintenance of common areas. Tenant shall maintain the interior of the Premises in good condition.</p>
 `;
 
+// Level 4: Final Assembly - Motion with formatting, citations, and tracked changes
+const level4Document = `
+<p style="text-align: center; font-family: Calibri; font-size: 11pt; font-weight: 700;">[A STANDARD CAPTION WOULD BE INSERTED HERE]</p>
+<p style="text-align: center; font-family: Calibri; font-size: 16pt; font-weight: 700;">MOTION IN LIMINE TO LIMIT EXPERT TESTIMONY</p>
+<p style="font-family: Calibri; font-size: 11pt; font-weight: 700;">Background</p>
+<p style="text-align: justify; font-family: Calibri; font-size: 11pt;">Plaintiff designated Dr. Lee to testify about warehouse ergonomics. The expert relies on limited site data and has offered opinions on medical causation without specialized training.</p>
+<p style="font-family: Calibri; font-size: 11pt; font-weight: 700;">Issues Presented</p>
+<p style="text-align: justify; font-family: Calibri; font-size: 11pt;">Whether Dr. Lee's methodology satisfies Daubert v. Merrell Dow Pharmaceuticals, Inc., 509 U.S. 579 (1993), and Kumho Tire Co. v. Carmichael, 526 U.S. 137 (1999).</p>
+<p style="font-family: Calibri; font-size: 11pt; font-weight: 700;">Argument</p>
+<p style="text-align: justify; font-family: Calibri; font-size: 11pt;"><ins data-insertion="true" class="track-insertion-inline">Defendant will provide all materials relied on by Dr. Lee within five (5) days of the ruling.</ins></p>
+<p style="text-align: justify; font-family: Calibri; font-size: 11pt;">Courts exclude expert opinions that rest on speculation. See People v. Sanchez, 63 Cal. 4th 665 (2016).</p>
+<p style="text-align: justify; font-family: Calibri; font-size: 11pt;"><del data-deletion="true" class="track-deletion-inline">Dr. Lee may supplement opinions up to the eve of trial without additional disclosure.</del></p>
+<p style="font-family: Calibri; font-size: 11pt; font-weight: 700;">Relief Requested</p>
+<p style="text-align: justify; font-family: Calibri; font-size: 11pt;">Defendant requests an order limiting Dr. Lee's testimony to ergonomics and requiring timely disclosure of relied-upon materials.</p>
+`;
+
 export const levels: Level[] = [
   {
     id: 1,
@@ -56,7 +72,7 @@ export const levels: Level[] = [
     subtitle: 'Basic Formatting & Styles',
     difficulty: 'junior',
     description: 'A new associate has submitted a case brief using Comic Sans and inconsistent formatting. Your task is to fix the document before it reaches the senior partner.',
-    objective: 'Standardize the document with proper legal formatting: Times New Roman font and semantic heading styles.',
+    objective: 'Standardize the document with proper legal formatting: Times New Roman font and heading styles.',
     skills: ['Font Formatting', 'Heading Styles', 'Document Standards'],
     tasks: [
       { id: 't1-1', description: 'Change all text to Times New Roman font', hint: 'Select all text (Ctrl+A) and use the Font dropdown in the Home tab' },
@@ -71,7 +87,7 @@ export const levels: Level[] = [
     title: 'Citation Nightmare',
     subtitle: 'Table of Authorities Generation',
     difficulty: 'associate',
-    description: 'The legal memorandum contains multiple case citations that need to be properly marked and compiled into a Table of Authorities.',
+    description: 'A legal memorandum contains multiple case citations that need to be properly marked and compiled into a Table of Authorities.',
     objective: 'Identify and mark all legal citations, then generate a proper Table of Authorities at the top of the document.',
     skills: ['Citation Recognition', 'TOA Generation', 'Legal Research'],
     tasks: [
@@ -88,7 +104,7 @@ export const levels: Level[] = [
     title: 'Redline Review',
     subtitle: 'Track Changes Review (Tenant perspective)',
     difficulty: 'senior',
-    description: 'You are reviewing redlines on behalf of the tenant. Opposing counsel has proposed several edits; some are routine, but one deletion could seriously harm your tenant client.',
+    description: 'You are reviewing redlines on behalf of the tenant. Opposing counsel has proposed several edits; some are routine, but one deletion could seriously harm your tenant client. In practice you would review your accept or reject decisions with your supervising attorney before finalizing.',
     objective: "Protect TechStart Inc. (Tenant): accept helpful or neutral edits, and reject anything that harms the tenant's rights.",
     skills: ['Track Changes', 'Contract Review', 'Risk Analysis'],
     tasks: [
@@ -100,5 +116,20 @@ export const levels: Level[] = [
     ],
     initialDocument: level3Document,
   },
+  {
+    id: 4,
+    title: 'The Filing Desk Check',
+    subtitle: 'Formatting, citations, and redlines',
+    difficulty: 'senior',
+    description: 'Assemble a motion for filing. Fix the formatting, mark every case, place a TOA at the top, and make careful accept or reject decisions. Confirm the work you would send to a supervising attorney for sign-off.',
+    objective: 'Deliver a filing-ready motion that matches firm standards for formatting, citations, and redline decisions.',
+    skills: ['Legal Formatting', 'Citation Management', 'Track Changes', 'Quality Control'],
+    tasks: [
+      { id: 't4-1', description: 'Normalize formatting: Times New Roman, title as Heading 1, section headers as Heading 2, body at 12pt', hint: 'Clean up Calibri, promote the title to Heading 1, and reset body text to 12pt Times New Roman' },
+      { id: 't4-2', description: 'Mark all case citations and insert the Table of Authorities at the very top', hint: 'Mark Daubert, Kumho Tire, and Sanchez, then place the TOA directly under the title (beneath the caption block)' },
+      { id: 't4-3', description: 'Accept helpful insertions (production deadline)', hint: 'Keep the commitment to produce Dr. Lee materials; it benefits your client' },
+      { id: 't4-4', description: 'Reject harmful deletions (protect disclosure limits)', hint: 'Do not allow unlimited expert supplements; keep the disclosure restriction in place' },
+    ],
+    initialDocument: level4Document,
+  },
 ];
-
