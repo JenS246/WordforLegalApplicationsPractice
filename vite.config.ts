@@ -5,5 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // Ensure assets resolve correctly when served from GitHub Pages project site
-  base: "/WordforLegalApplicationsPractice/dist/",
+  base: "/WordforLegalApplicationsPractice/",
+  build: {
+    outDir: "docs",
+  },
 })
